@@ -1,4 +1,4 @@
-# !/usr/bin/env bash
+#!/usr/bin/env bash
 # Script to process Fierer 16s dataset
 # Including downloading from NCBI SRA
 # To fasta from fastq, and finally
@@ -12,7 +12,7 @@
 
 for SRA_number in $(cut -f 6 data/metadata/fierer_forensic_hand_mouse_SraRunTable.txt | tail -n +2)
 do
-    fastq-dump -v $SRA_number -O data/raw_data
+    fastq-dump -v "$SRA_number" -O data/raw_data
 done
 
 # Create QC reports for each of the runs using the FastQC program
@@ -25,18 +25,18 @@ fastqc data/raw_data/*.fastq --outdir=output/fastqc
 # http://www.usadellab.org/cms/index.php?page=trimmomatic
 for file in data/raw_data/*.fastq
 do
-TrimmomaticSE -threads 2 -phred33 $file data/trimmed/$(basename -s .fastq $file).trim.fastq LEADING:5 TRAILING:5 SLIDINGWINDOW:8:25 MINLEN:150
+TrimmomaticSE -threads 2 -phred33 "$file" data/trimmed/"$(basename -s .fastq "$file").trim.fastq" LEADING:5 TRAILING:5 SLIDINGWINDOW:8:25 MINLEN:150
 done
 
 # We are converting fastq files into fasta files so they can be used as BLAST queries.
 for file in data/trimmed/*.trim.fastq
 do
-bioawk -c fastx '{print ">"$name"\n"$seq}' $file > data/billy_fasta/$(basename -s .trim.fastq $file).fasta
+bioawk -c fastx '{print ">"$name"\n"$seq}' "$file" > data/billy_fasta/"$(basename -s .trim.fastq "$file").fasta"
 done
 
 # Using blastn to search for the top match of each sequence against the nt database
 
 for file in data/billy_fasta/*.fasta
 do
-blastn -db /blast-db/nt -num_threads 2 -outfmt '10 sscinames std' -out output/billytwin_csv/$(basename -s .fasta $file).csv -max_target_seqs 1 -negative_gilist /blast-db/2018-09-19_environmental_sequence.gi -query $file
+blastn -db /blast-db/nt -num_threads 2 -outfmt '10 sscinames std' -out output/billytwin_csv/"$(basename -s .fasta "$file").csv" -max_target_seqs 1 -negative_gilist /blast-db/2018-09-19_environmental_sequence.gi -query "$file"
 done
