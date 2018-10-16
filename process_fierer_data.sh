@@ -36,7 +36,7 @@ done
 
 # Using blastn to search for the top match of each sequence against the nt database
 
-for file in data/billy_fasta/ERR1942297.fasta
+for file in data/billy_fasta/*.fasta
 do
 blastn -db /blast-db/nt -num_threads 2 -outfmt '10 sscinames std' -out output/billytwin_csv/$(basename -s .fasta $file).csv -max_target_seqs 1 -negative_gilist /blast-db/2018-09-19_environmental_sequence.gi -query $file
 done
